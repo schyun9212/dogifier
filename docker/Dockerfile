@@ -23,14 +23,11 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 RUN python -m pip install --upgrade pip
 RUN pip install regex==2018.01.10 msgpack==0.5.6
-RUN pip install torchvision\
-                pytorch-lightning==1.0.0\
-                hydra-core==1.0.4\
-                timm==0.2.1\
-                numpy==1.19.2\
-                imgaug==0.4.0\
-                pyarrow==2.0.0\
-                pylint==2.6.0
+RUN pip install torch torchvision\
+                pytorch-lightning==1.3.1\
+                hydra-core==1.0.6\
+                timm==0.4.5\
+                numpy==1.19.2
 
 RUN mkdir /home/${USER}/${PROJECT_NAME}
 WORKDIR /home/${USER}/${PROJECT_NAME}
