@@ -2,7 +2,6 @@ from omegaconf import DictConfig, OmegaConf
 import hydra
 import pytorch_lightning as pl
 from torchvision.transforms.transforms import Resize
-from classifier import Classifier
 import os
 from PIL import Image
 
@@ -10,14 +9,20 @@ import torch
 import torchvision.transforms as T
 import json
 
+from dogifier.datamodules.dog_breed_identification import DogBreedIdentificationDataModule
+from dogifier.classifier import Classifier
+
 @hydra.main(config_path="configs", config_name="config")
 def main(cfg: DictConfig) -> None:
     # dm = MNISTDataModule(**cfg.datamodule)
     # model = Classifier("vit_base_patch16_224")
     # model = Classifier("resnext101_32x8d")
+    dm = DogBreedIdentificationDataModule("/home/appuser/datasets/dog-breed-identification")
     model = Classifier("efficientnet_l2")
     model.eval()
 
+    trainer = pl.Trainer(**cfg.trainer)
+    trainer.fit(model, datamodule=dm)
     image_dir = "/home/appuser/datasets/dogNet"
     transforms = T.Compose(
         [
