@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/pytorch:20.07-py3
+FROM nvcr.io/nvidia/pytorch:21.02-py3
 
 RUN apt update
 RUN apt install -y vim zsh tmux git
@@ -23,9 +23,8 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 RUN python -m pip install --upgrade pip
 RUN pip install regex==2018.01.10 msgpack==0.5.6
-RUN pip install torch torchvision\
-                pytorch-lightning==1.3.1\
-                hydra-core==1.0.6\
+RUN pip install pytorch-lightning==1.3.1\
+                yacs==0.1.7\
                 timm==0.4.5\
                 numpy==1.19.2
 

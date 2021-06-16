@@ -1,6 +1,8 @@
 version: "2.3"
 services:
-  dog-classifier:
+  dogifier:
+    container_name: dogifier-${USER}
+    image: dogifier:0.0.1
     build:
       context: .
       dockerfile: Dockerfile
