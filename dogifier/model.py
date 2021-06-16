@@ -34,6 +34,12 @@ class Dogifier(pl.LightningModule):
             self.linear.bias.data.zero_()
         else:
             self.linear = None
+        
+        self._freeze()
+    
+    def _freeze(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = False
 
     def _forward_features(self, image):
         x = self.backbone(image)
