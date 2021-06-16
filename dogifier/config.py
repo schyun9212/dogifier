@@ -5,7 +5,8 @@ _C = CN()
 ################################################
 # Model Configs
 _C.MODEL = CN()
-_C.MODEL.TYPE = "timm" # ("timm", "dino")
+_C.MODEL.TYPE = "dino" # ("timm", "dino")
+_C.MODEL.NUM_LABELS = 1000
 
 # timm config
 _C.MODEL.TIMM = CN()
