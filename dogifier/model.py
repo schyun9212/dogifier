@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 import timm
 
+import dogifier.utils as utils
+
 
 def build_timm_model(timm_cfg):
     model = timm.create_model(timm_cfg.NAME, pretrained=True)
@@ -51,19 +53,24 @@ class Dogifier(pl.LightningModule):
         return x
 
     def training_step(self, batch, batch_idx):
-        loss = self.shared_step(batch)
+        loss, _ = self.shared_step(batch)
         self.log("train_loss", loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        loss = self.shared_step(batch)
-        self.log('val_loss', loss)
+        _, y = batch
+        loss, logits = self.shared_step(batch)
+        acc1, acc5 = utils.accuracy(logits, y, (1, 5))
+
+        self.log("val_loss", loss)
+        self.log("val_top1_acc", acc1)
+        self.log("val_top5_acc", acc5)
 
     def shared_step(self, batch):
         x, y = batch
         logits = self._forward_features(x)
         loss = F.cross_entropy(logits, y)
-        return loss
+        return loss, logits
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.cfg.LR)

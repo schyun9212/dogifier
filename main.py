@@ -15,7 +15,10 @@ def main(args) -> None:
     model.eval()
 
     dm = ImagenetDataModule("/home/appuser/datasets/ImageNet")
-    trainer = pl.Trainer(gpus=1)
+    trainer = pl.Trainer(
+        gpus=1,
+        auto_lr_find=True
+    )
 
     if args.mode == "fit":
         trainer.fit(model, dm)
