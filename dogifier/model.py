@@ -28,11 +28,11 @@ class Dogifier(pl.LightningModule):
             raise NotImplementedError
 
         if self.backbone.num_features != self.cfg.NUM_LABELS:
-            self.linear = nn.Linear(self.backbone.num_features, model_cfg.NUM_LABELS)
-            self.linear.weight.data.normal_(mean=0.0, std=0.01)
-            self.linear.bias.data.zero_()
+            self.head = nn.Linear(self.backbone.num_features, model_cfg.NUM_LABELS)
+            self.head.weight.data.normal_(mean=0.0, std=0.01)
+            self.head.bias.data.zero_()
         else:
-            self.linear = None
+            self.head = nn.Identity()
         
         self._freeze()
     
@@ -42,8 +42,7 @@ class Dogifier(pl.LightningModule):
 
     def _forward_features(self, image):
         x = self.backbone(image)
-        if self.linear is not None:
-            x = self.linear(x)
+        x = self.head(x)
         return x
 
     def forward(self, image):
