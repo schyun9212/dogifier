@@ -1,9 +1,12 @@
 import argparse
-import pytorch_lightning as pl
+import os
+
+from pytorch_lightning import Trainer, callbacks
 
 from dogifier.datamodules import ImagenetDataModule
 from dogifier.config import get_cfg
 from dogifier.model import Dogifier
+from dogifier.checkpoint import build_checkpoint_callback
 
 
 def main(args) -> None:
@@ -15,11 +18,14 @@ def main(args) -> None:
     model.eval()
 
     dm = ImagenetDataModule("/home/appuser/datasets/ImageNet")
-    trainer = pl.Trainer(
+    model_dir = os.path.join(args.model_root, args.expr)
+    checkpoint_callbacks = build_checkpoint_callback(model_dir, ["val_loss", "val_top1_acc", "val_top5_acc"])
+    trainer = Trainer(
         gpus=1,
-        auto_lr_find=True
+        auto_lr_find=True,
+        callbacks = checkpoint_callbacks
     )
-
+        
     if args.mode == "fit":
         trainer.fit(model, dm)
     elif args.mode == "test":
@@ -28,6 +34,8 @@ def main(args) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config-file", type=str, default=None)
+    parser.add_argument("--model-root", type=str, default="/home/appuser/models")
+    parser.add_argument("--expr", type=str, required=True)
     parser.add_argument("--mode", choices=("fit", "test"), required=True)
     args = parser.parse_args()
     

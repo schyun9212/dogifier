@@ -23,6 +23,7 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - ../:/home/appuser/${PROJECT_NAME}
       - ~/datasets:/home/appuser/datasets
+      - ~/models:/home/appuser/models
     environment:
       - DISPLAY=$DISPLAY
       - NVIDIA_VISIBLE_DEVICES=all
