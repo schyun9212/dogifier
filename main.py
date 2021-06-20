@@ -7,9 +7,9 @@ from omegaconf import DictConfig
 from pytorch_lightning.core import datamodule
 
 from dogifier.datamodules.build import build_datamodule
-from dogifier.datamodules import ImagenetDataModule
 from dogifier.model import Dogifier
 from dogifier.checkpoint import build_checkpoint_callback
+from dogifier.utils import get_num_params, save_ckpt_from_result
 
 
 @hydra.main(config_path="conf", config_name="config")
@@ -27,7 +27,13 @@ def main(cfg: DictConfig) -> None:
     )
 
     if cfg.mode == "fit":
-        trainer.fit(model, datamodule=dm)
+        if get_num_params(model, requires_grad=True) > 0:
+            trainer.fit(model, datamodule=dm)
+        else:
+            val_result = trainer.validate(model, datamodule=dm)[0]
+            save_ckpt_from_result(trainer, val_result, model_dir)
+    elif cfg.model == "val":
+        trainer.validate(model, datamodule=dm)
     elif cfg.mode == "test":
         trainer.test(model, dataomodule=dm)
 
