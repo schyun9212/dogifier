@@ -7,30 +7,24 @@ import timm
 import dogifier.utils as utils
 
 
-def build_timm_model(timm_cfg):
-    model = timm.create_model(timm_cfg.NAME, pretrained=True)
+def build_backbone(cfg):
+    if cfg.type == "timm":
+        model = timm.create_model(cfg.name, pretrained=True)
+    elif cfg.type == "dino":
+        model = torch.hub.load("facebookresearch/dino:main", cfg.name)
+    else:
+        raise NotImplementedError
     return model
-
-
-def build_dino_model(dino_cfg):
-    model = torch.hub.load("facebookresearch/dino:main", dino_cfg.NAME)
-    return model
-
 
 class Dogifier(pl.LightningModule):
     def __init__(self, model_cfg):
         super(Dogifier, self).__init__()
         self.cfg = model_cfg
         
-        if self.cfg.TYPE == "timm":
-            self.backbone = build_timm_model(self.cfg.TIMM)
-        elif self.cfg.TYPE == "dino":
-            self.backbone = build_dino_model(self.cfg.DINO)
-        else:
-            raise NotImplementedError
+        self.backbone = build_backbone(self.cfg)
 
-        if self.backbone.num_features != self.cfg.NUM_LABELS:
-            self.head = nn.Linear(self.backbone.num_features, model_cfg.NUM_LABELS)
+        if self.backbone.num_features != self.cfg.num_labels:
+            self.head = nn.Linear(self.backbone.num_features, self.cfg.num_labels)
             self.head.weight.data.normal_(mean=0.0, std=0.01)
             self.head.bias.data.zero_()
         else:

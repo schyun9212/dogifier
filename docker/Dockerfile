@@ -26,7 +26,8 @@ RUN pip install regex==2018.01.10 msgpack==0.5.6
 RUN pip install pytorch-lightning==1.3.1\
                 yacs==0.1.7\
                 timm==0.4.5\
-                numpy==1.19.2
+                numpy==1.19.2\
+                hydra-core==1.1.0
 
 RUN mkdir /home/${USER}/${PROJECT_NAME}
 WORKDIR /home/${USER}/${PROJECT_NAME}
