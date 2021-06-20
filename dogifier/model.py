@@ -24,7 +24,12 @@ class Dogifier(pl.LightningModule):
         
         self.backbone = build_backbone(self.cfg.backbone)
 
-        if self.backbone.num_features != self.cfg.num_labels:
+        if isinstance(self.backbone.head, nn.Identity):
+            backbone_out_features = self.backbone.num_features
+        else:
+            backbone_out_features = self.backbone.head.out_features
+
+        if backbone_out_features != self.cfg.num_labels:
             self.head = nn.Linear(self.backbone.num_features, self.cfg.num_labels)
             self.head.weight.data.normal_(mean=0.0, std=0.01)
             self.head.bias.data.zero_()

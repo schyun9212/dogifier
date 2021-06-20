@@ -4,6 +4,7 @@ import hydra
 from pytorch_lightning import Trainer
 
 from omegaconf import DictConfig
+from pytorch_lightning.core import datamodule
 
 from dogifier.datamodules.build import build_datamodule
 from dogifier.datamodules import ImagenetDataModule
@@ -22,13 +23,13 @@ def main(cfg: DictConfig) -> None:
     trainer = Trainer(
         gpus=1,
         auto_lr_find=True,
-        callbacks = checkpoint_callbacks
+        callbacks=checkpoint_callbacks
     )
-        
+
     if cfg.mode == "fit":
-        trainer.fit(model, dm)
+        trainer.fit(model, datamodule=dm)
     elif cfg.mode == "test":
-        trainer.test(model, dm)
+        trainer.test(model, dataomodule=dm)
 
 
 if __name__ == "__main__":

@@ -3,4 +3,4 @@ defaults:
 
 backbone:
   type: timm
-  name: vit_base_path16_224
+  name: vit_base_patch16_224
