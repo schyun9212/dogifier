@@ -1,3 +1,4 @@
 defaults:
-  - base
+  - __base__
+
 path: ${data_root}/ImageNet

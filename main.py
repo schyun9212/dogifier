@@ -16,7 +16,7 @@ def main(cfg: DictConfig) -> None:
     model.eval()
 
     dm = ImagenetDataModule("/home/appuser/datasets/ImageNet")
-    model_dir = os.path.join(cfg.model_dir, cfg.experiment)
+    model_dir = os.path.join(cfg.model_root, cfg.experiment)
     checkpoint_callbacks = build_checkpoint_callback(model_dir, ["val_loss", "val_top1_acc", "val_top5_acc"])
     trainer = Trainer(
         gpus=1,

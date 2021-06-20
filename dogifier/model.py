@@ -16,6 +16,7 @@ def build_backbone(cfg):
         raise NotImplementedError
     return model
 
+
 class Dogifier(pl.LightningModule):
     def __init__(self, model_cfg):
         super(Dogifier, self).__init__()
@@ -67,5 +68,5 @@ class Dogifier(pl.LightningModule):
         return loss, logits
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.cfg.LR)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.cfg.lr)
         return optimizer
