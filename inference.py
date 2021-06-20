@@ -5,16 +5,11 @@ import torch
 import torchvision.transforms as T
 import json
 
-from dogifier.config import get_cfg
 from dogifier.model import Dogifier
 
 
 def main(args) -> None:
-    cfg = get_cfg()
-    if args.config_file is not None:
-        cfg.merge_from_file(args.config_file)
-
-    model = Dogifier(cfg.MODEL)
+    model = Dogifier.load_from_checkpoint(args.ckpt)
     model.eval()
 
     image_dir = args.image_dir
@@ -46,7 +41,7 @@ def main(args) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config-file", type=str, default=None)
+    parser.add_argument("--ckpt", type=str, required=True)
     parser.add_argument("--image-dir", type=str, required=True)
     args = parser.parse_args()
     

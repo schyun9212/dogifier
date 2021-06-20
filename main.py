@@ -5,6 +5,7 @@ from pytorch_lightning import Trainer
 
 from omegaconf import DictConfig
 
+from dogifier.datamodules.build import build_datamodule
 from dogifier.datamodules import ImagenetDataModule
 from dogifier.model import Dogifier
 from dogifier.checkpoint import build_checkpoint_callback
@@ -15,7 +16,7 @@ def main(cfg: DictConfig) -> None:
     model = Dogifier(cfg.model)
     model.eval()
 
-    dm = ImagenetDataModule("/home/appuser/datasets/ImageNet")
+    dm = build_datamodule(cfg.datamodule)
     model_dir = os.path.join(cfg.model_root, cfg.experiment)
     checkpoint_callbacks = build_checkpoint_callback(model_dir, ["val_loss", "val_top1_acc", "val_top5_acc"])
     trainer = Trainer(

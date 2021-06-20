@@ -6,7 +6,6 @@ import pytorch_lightning as pl
 
 from typing import Any, Optional
 
-from torchvision.transforms.transforms import RandomHorizontalFlip, RandomResizedCrop, ToTensor
 
 class ImagenetDataModule(pl.LightningDataModule):
     def __init__(
