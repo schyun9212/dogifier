@@ -1,5 +1,6 @@
 defaults:
   - __base__
 
-type: dino
-name: dino_vits16
+backbone:
+  type: dino
+  name: dino_vits16

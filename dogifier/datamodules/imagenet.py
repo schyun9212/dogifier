@@ -2,12 +2,11 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 import os
 from torchvision import transforms as T
-import pytorch_lightning as pl
-
+from pytorch_lightning import LightningDataModule
 from typing import Any, Optional
 
 
-class ImagenetDataModule(pl.LightningDataModule):
+class ImagenetDataModule(LightningDataModule):
     def __init__(
         self,
         data_dir: str,

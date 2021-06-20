@@ -7,11 +7,11 @@ import timm
 import dogifier.utils as utils
 
 
-def build_backbone(cfg):
-    if cfg.type == "timm":
-        model = timm.create_model(cfg.name, pretrained=True)
-    elif cfg.type == "dino":
-        model = torch.hub.load("facebookresearch/dino:main", cfg.name)
+def build_backbone(backbone_cfg):
+    if backbone_cfg.type == "timm":
+        model = timm.create_model(backbone_cfg.name, pretrained=True)
+    elif backbone_cfg.type == "dino":
+        model = torch.hub.load("facebookresearch/dino:main", backbone_cfg.name)
     else:
         raise NotImplementedError
     return model
@@ -22,7 +22,7 @@ class Dogifier(pl.LightningModule):
         super(Dogifier, self).__init__()
         self.cfg = model_cfg
         
-        self.backbone = build_backbone(self.cfg)
+        self.backbone = build_backbone(self.cfg.backbone)
 
         if self.backbone.num_features != self.cfg.num_labels:
             self.head = nn.Linear(self.backbone.num_features, self.cfg.num_labels)

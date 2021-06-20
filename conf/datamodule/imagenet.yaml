@@ -1,5 +1,4 @@
 defaults:
   - __base__
 
-name: ImageNet
 data_dir: ${data_root}/ImageNet

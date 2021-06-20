@@ -1,5 +1,6 @@
 defaults:
   - __base__
 
-type: timm
-name: vit_base_path16_224
+backbone:
+  type: timm
+  name: vit_base_path16_224

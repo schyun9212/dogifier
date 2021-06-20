@@ -1,3 +1,5 @@
+import os
+
 from .imagenet import ImagenetDataModule
 
 
@@ -7,4 +9,6 @@ CATALOG = {
 
 
 def build_datamodule(datamodule_cfg):
-    return CATALOG[datamodule_cfg.name](**datamodule_cfg)
+    data_dir = datamodule_cfg.data_dir
+    dataset_name = os.path.basename(data_dir)
+    return CATALOG[dataset_name](**datamodule_cfg)
