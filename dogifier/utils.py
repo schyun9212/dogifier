@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+from pytz import timezone
 
 
 def accuracy(output, target, topk=(1,)):
@@ -27,3 +29,9 @@ def save_ckpt_from_result(trainer, result, model_dir="outputs"):
         ckpt_name = ckpt_template.format(**{"epoch": 0, metric: scalar})
         ckpt_path = os.path.join(model_dir, ckpt_name)
         trainer.save_checkpoint(ckpt_path)
+
+def get_expr_name(expr):
+    d = datetime.now(timezone("Asia/Seoul"))
+    d = d.strftime("%Y%m%d%H%M%S")
+    expr_name = f"{expr}_{d}"
+    return expr_name

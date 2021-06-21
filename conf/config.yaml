@@ -2,9 +2,10 @@ data_root: "/home/appuser/datasets"
 model_root: "/home/appuser/models"
 
 mode: "fit"
-experiment: "dino-classifier"
+expr: ""
 
 defaults:
   - datamodule:
     - imagenet
   - model: dino
+  - trainer: default

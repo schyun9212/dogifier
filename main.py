@@ -2,28 +2,30 @@ import os
 
 import hydra
 from pytorch_lightning import Trainer
-
 from omegaconf import DictConfig
-from pytorch_lightning.core import datamodule
 
 from dogifier.datamodules.build import build_datamodule
 from dogifier.model import Dogifier
-from dogifier.checkpoint import build_checkpoint_callback
-from dogifier.utils import get_num_params, save_ckpt_from_result
+from dogifier.callback import build_checkpoint_callback, build_early_stop_callback
+from dogifier.utils import get_num_params, save_ckpt_from_result, get_expr_name
 
 
 @hydra.main(config_path="conf", config_name="config")
 def main(cfg: DictConfig) -> None:
+    assert len(cfg.expr) > 0, "experiment name should be specified"
+    expr_name = get_expr_name(cfg.expr)
+
     model = Dogifier(cfg.model)
     model.eval()
 
     dm = build_datamodule(cfg.datamodule)
-    model_dir = os.path.join(cfg.model_root, cfg.experiment)
+    model_dir = os.path.join(cfg.model_root, expr_name)
     checkpoint_callbacks = build_checkpoint_callback(model_dir, ["val_loss", "val_top1_acc", "val_top5_acc"])
+    early_stop_callbacks = build_early_stop_callback("val_top1_acc")
+    callbacks = checkpoint_callbacks + early_stop_callbacks
     trainer = Trainer(
-        gpus=1,
-        auto_lr_find=True,
-        callbacks=checkpoint_callbacks
+        **cfg.trainer,
+        callbacks=callbacks
     )
 
     if cfg.mode == "fit":
