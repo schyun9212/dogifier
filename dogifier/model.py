@@ -36,7 +36,8 @@ class Dogifier(pl.LightningModule):
         else:
             self.head = nn.Identity()
         
-        self._freeze()
+        if self.cfg.freeze_backbone:
+            self._freeze()
     
     def _freeze(self):
         for param in self.backbone.parameters():
