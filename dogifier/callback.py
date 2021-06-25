@@ -18,7 +18,7 @@ def build_checkpoint_callback(model_dir, targets=[], precision=".2f", save_top_k
     return callbacks
 
 
-def build_early_stop_callback(monitor, min_delta=0.0, patience=5, mode="max"):
+def build_early_stop_callback(monitor, min_delta=0.0, patience=10, mode="max"):
     callback = EarlyStopping(
         monitor=monitor,
         min_delta=min_delta,
