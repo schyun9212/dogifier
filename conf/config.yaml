@@ -1,8 +1,13 @@
+expr: ???
+
+hydra:
+  run:
+    dir: outputs/${expr}/${now:%Y-%m-%d-%H-%M-%S}
+
 data_root: "/home/appuser/datasets"
 model_root: "/home/appuser/models"
 
 mode: "fit"
-expr: ""
 
 defaults:
   - datamodule:

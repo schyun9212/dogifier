@@ -1,11 +1,12 @@
 FROM nvcr.io/nvidia/pytorch:21.02-py3
 
+ARG TZ="Asia/Seoul"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt update
-RUN apt install -y vim zsh tmux git
+RUN apt install -y vim zsh tmux git tzdata
 RUN chsh -s $(which zsh)
 ENTRYPOINT ["zsh"]
-
-ARG PROJECT_NAME="project"
 
 # create a non-root user
 ARG USER="appuser"
@@ -29,5 +30,6 @@ RUN pip install pytorch-lightning==1.3.1\
                 numpy==1.19.2\
                 hydra-core==1.1.0
 
+ARG PROJECT_NAME="project"
 RUN mkdir /home/${USER}/${PROJECT_NAME}
 WORKDIR /home/${USER}/${PROJECT_NAME}

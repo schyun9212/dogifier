@@ -63,23 +63,24 @@ class Dogifier(pl.LightningModule):
         loss, logits = self.shared_step(batch)
         acc1, acc5 = utils.accuracy(logits, y, (1, 5))
 
+        self.log("val_loss", loss)
+        self.log("val_top1_acc", acc1, prog_bar=True)
+        self.log("val_top5_acc", acc5)
+
         metrics = {
-            "val_loss": loss,
-            "val_top1_acc": acc1,
-            "val_top5_acc": acc5
+            "loss": loss,
+            "top1_acc": acc1,
+            "top5_acc": acc5
         }
-        self.log(metrics)
 
         return metrics
 
     def test_step(self, batch, batch_idx):
         metrics = self.validation_step(batch, batch_idx)
-        metrics = {
-            "test_loss": metrics["val_loss"],
-            "test_top1_acc": metrics["val_top1_acc"],
-            "test_top5_acc": metrics["val_top5_acc"]
-        }
-        self.log(metrics)
+        
+        self.log("test_loss", metrics["loss"])
+        self.log("test_top1_acc", metrics["top1_acc"], prog_bar=True)
+        self.log("test_top5_acc", metrics["top5_acc"])
 
     def shared_step(self, batch):
         x, y = batch
