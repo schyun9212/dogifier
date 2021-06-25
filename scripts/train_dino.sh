@@ -12,10 +12,4 @@ do
         model=dino \
         expr=${model_names[$i]} \
         datamodule.batch_size=${batch_sizes[$i]}
-    
-    python main.py \
-        model=dino \
-        model.freeze_backbone=False \
-        expr=${model_names[$i]}_finetune \
-        datamodule.batch_size=${batch_sizes[$i]}
 done

@@ -1,4 +1,4 @@
 defaults:
   - __base__
 
-data_dir: ${data_root}/ImageNet
+data_dir: ${data_root}/ILSVRC2012

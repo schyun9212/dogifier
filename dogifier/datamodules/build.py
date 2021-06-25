@@ -4,7 +4,7 @@ from .imagenet import ImagenetDataModule
 
 
 CATALOG = {
-    "ImageNet": ImagenetDataModule
+    "ILSVRC2012": ImagenetDataModule, # ImageNet-1k Dataset
 }
 
 
