@@ -7,11 +7,14 @@ def build_checkpoint_callback(model_dir, targets=[], precision=".2f", save_top_k
     callbacks = []
 
     for target in targets:
+        mode = "min" if "loss" in target else "max"
+
         callback = ModelCheckpoint(
             dirpath=model_dir,
             monitor=target,
             filename=parse_ckpt_template(target, precision),
-            save_top_k=save_top_k
+            save_top_k=save_top_k,
+            mode=mode
         )
         callbacks.append(callback)
     
