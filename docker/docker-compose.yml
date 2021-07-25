@@ -27,4 +27,5 @@ services:
     environment:
       - DISPLAY=$DISPLAY
       - NVIDIA_VISIBLE_DEVICES=all
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
     tty: true
