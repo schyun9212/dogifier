@@ -1,13 +1,11 @@
 expr: ???
-
+output_dir: /home/appuser/models
 hydra:
   run:
-    dir: outputs/${expr}/${now:%Y-%m-%d-%H-%M-%S}
+    dir: ${output_dir}/${expr}
 
+ckpt_path: ""
 data_root: "/home/appuser/datasets"
-model_root: "/home/appuser/models"
-
-mode: "fit"
 
 defaults:
   - datamodule:
