@@ -1,4 +1,6 @@
 expr: ???
+git_hash: ""
+
 output_dir: /home/appuser/models
 hydra:
   run:
