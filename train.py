@@ -11,7 +11,7 @@ from dogifier.callback import build_checkpoint_callback, build_early_stop_callba
 
 @hydra.main(config_path="conf", config_name="config")
 def main(cfg: DictConfig) -> None:
-    model = Dogifier(cfg.model)
+    model = Dogifier(**cfg.model)
     model.eval()
 
     model_dir = os.getcwd()

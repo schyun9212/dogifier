@@ -30,6 +30,7 @@ def save_ckpt_from_result(trainer, result, model_dir="outputs"):
         ckpt_path = os.path.join(model_dir, ckpt_name)
         trainer.save_checkpoint(ckpt_path)
 
+
 def get_expr_name(expr):
     d = datetime.now(timezone("Asia/Seoul"))
     d = d.strftime("%Y%m%d%H%M%S")

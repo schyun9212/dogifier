@@ -1,3 +1,4 @@
+from typing import Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,36 +8,52 @@ import timm
 import dogifier.utils as utils
 
 
-def build_backbone(backbone_cfg):
-    if backbone_cfg.type == "timm":
-        model = timm.create_model(backbone_cfg.name, pretrained=True)
-    elif backbone_cfg.type == "dino":
-        model = torch.hub.load("facebookresearch/dino:main", backbone_cfg.name)
+TIMM_MODEL_CATALOG = dict.fromkeys(timm.list_models(pretrained=True), None)
+DINO_MODEL_CATALOG = {
+    "dino_vits16", "dino_vits8",
+    "dino_vitb16", "dino_vitb8",
+    "dino_xcit_small_12_p16", "dino_xcit_small_12_p8",
+    "dino_xcit_medium_24_p16", "dino_xcit_medium_24_p8",
+    "dino_resnet50"
+}
+
+
+def build_backbone(name: str):
+    if name in TIMM_MODEL_CATALOG:
+        model = timm.create_model(name, pretrained=True)
+    elif name in DINO_MODEL_CATALOG:
+        model = torch.hub.load("facebookresearch/dino:main", name)
     else:
         raise NotImplementedError
     return model
 
 
 class Dogifier(pl.LightningModule):
-    def __init__(self, model_cfg):
+    def __init__(
+        self,
+        backbone_name: str, *,
+        num_classes: Optional[int] = 1000,
+        freeze: Optional[bool] = False,
+        lr: Optional[float] = 0.001
+
+    ):
         super(Dogifier, self).__init__()
-        self.cfg = model_cfg
-        
-        self.backbone = build_backbone(self.cfg.backbone)
+        self.backbone = build_backbone(backbone_name)
 
         if isinstance(self.backbone.head, nn.Identity):
             backbone_out_features = self.backbone.num_features
         else:
             backbone_out_features = self.backbone.head.out_features
 
-        if backbone_out_features != self.cfg.num_labels:
-            self.head = nn.Linear(self.backbone.num_features, self.cfg.num_labels)
+        if backbone_out_features != num_classes:
+            self.head = nn.Linear(self.backbone.num_features, num_classes)
             self.head.weight.data.normal_(mean=0.0, std=0.01)
             self.head.bias.data.zero_()
         else:
             self.head = nn.Identity()
         
-        if self.cfg.freeze_backbone:
+        self.lr = lr
+        if freeze:
             self._freeze()
     
     def _freeze(self):
@@ -89,5 +106,5 @@ class Dogifier(pl.LightningModule):
         return loss, logits
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.cfg.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
