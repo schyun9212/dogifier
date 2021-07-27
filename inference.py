@@ -10,7 +10,7 @@ from dogifier.model import Dogifier
 
 
 def build_imagenet_class_map():
-    with open("imagenet_class_index.json", 'r') as f:
+    with open("data/imagenet_class_index.json", 'r') as f:
         imagenet_class_idx = json.load(f)
         imagenet_idx_to_class = [ item[1] for item in imagenet_class_idx.values() ]
     return imagenet_idx_to_class
