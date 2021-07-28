@@ -1,36 +1,19 @@
 import os
-from PIL import Image
 import argparse
-import torch
-import torchvision.transforms as T
-import json
 from typing import Optional
-
+from PIL import Image
+from dogifier.utils.resource import get_imagenet_class_map
 from dogifier.model import Dogifier
-
-
-def build_imagenet_class_map():
-    with open("imagenet_class_index.json", 'r') as f:
-        imagenet_class_idx = json.load(f)
-        imagenet_idx_to_class = [ item[1] for item in imagenet_class_idx.values() ]
-    return imagenet_idx_to_class
-
-
-def build_transform():
-    transforms = T.Compose(
-        [
-            T.Resize((224, 224), 3),
-            T.ToTensor(),
-            T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ]
-    )
-    return transforms
 
 
 def main(
     image_dir: str, *,
     backbone_name: Optional[str] = None,
-    weight_file: Optional[str] = None
+    weight_file: Optional[str] = None,
+    batch_size: Optional[int] = 1,
+    wordtree_target: Optional[str] = None,
+    to_name: Optional[bool] = False,
+    device: Optional[str] = "cpu"
 ) -> None:
     assert backbone_name or weight_file, "backbone name or weight file should be specified"
 
@@ -39,6 +22,7 @@ def main(
     else:
         model = Dogifier(backbone_name, num_classes=1000, freeze=True)
     model.eval()
+    model.to(device)
 
     image_dir = args.image_dir
     if os.path.isdir(image_dir):
@@ -46,16 +30,11 @@ def main(
     else:
         image_list = [ image_dir ]
 
-    transforms = build_transform()
-    class_map = build_imagenet_class_map()
-
-    for image_path in image_list:
-        image = Image.open(image_path)
-        image = transforms(image)
-        image = image.unsqueeze(0)
-        result = model(image)
-        result = torch.argmax(result)
-        print(class_map[int(result)])
+    for i in range(0, len(image_list), batch_size):
+        image_files = image_list[i:i+batch_size]
+        image_batch = [ Image.open(image_file) for image_file in image_files ]
+        results = model.classify(image_batch, to_name=to_name, wordtree_target=wordtree_target)
+        print(results)
 
 
 if __name__ == "__main__":
@@ -63,10 +42,18 @@ if __name__ == "__main__":
     parser.add_argument("--image-dir", type=str, required=True)
     parser.add_argument("--backbone-name", type=str, default=None)
     parser.add_argument("--weight-file", type=str, default=None)
+    parser.add_argument("--batch-size", type=int, default=1)
+    parser.add_argument("--wordtree-target", type=str, default=None)
+    parser.add_argument("--to-name", action="store_true")
+    parser.add_argument("--device", type=str, default="cpu")
     args = parser.parse_args()
     
     main(
         args.image_dir,
         backbone_name=args.backbone_name,
-        weight_file=args.weight_file
+        weight_file=args.weight_file,
+        batch_size=args.batch_size,
+        wordtree_target=args.wordtree_target,
+        to_name=args.to_name,
+        device=args.device
     )

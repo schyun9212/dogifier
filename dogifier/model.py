@@ -1,11 +1,17 @@
-from typing import Optional
+import os
 import torch
+from torch._C import device
 import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
 import timm
+import torchvision.transforms as T
+from PIL import Image
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, Union, List
 
-import dogifier.utils as utils
+from .metric import accuracy
+from .utils.wordtree import WordTree
 
 
 TIMM_MODEL_CATALOG = dict.fromkeys(timm.list_models(pretrained=True), None)
@@ -38,6 +44,10 @@ class Dogifier(pl.LightningModule):
 
     ):
         super(Dogifier, self).__init__()
+        self.wordtree = WordTree()
+        self.lr = lr
+
+        # Setup network
         self.backbone = build_backbone(backbone_name)
 
         if isinstance(self.backbone.head, nn.Identity):
@@ -51,8 +61,7 @@ class Dogifier(pl.LightningModule):
             self.head.bias.data.zero_()
         else:
             self.head = nn.Identity()
-        
-        self.lr = lr
+
         if freeze:
             self._freeze()
     
@@ -78,7 +87,7 @@ class Dogifier(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         _, y = batch
         loss, logits = self.shared_step(batch)
-        acc1, acc5 = utils.accuracy(logits, y, (1, 5))
+        acc1, acc5 = accuracy(logits, y, (1, 5))
 
         self.log("val_loss", loss)
         self.log("val_top1_acc", acc1, prog_bar=True)
@@ -108,3 +117,34 @@ class Dogifier(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
+
+    def classify(
+        self,
+        images: Union[Image.Image, List[Image.Image]],
+        wordtree_target: Optional[str] = None,
+        to_name: Optional[bool] = False
+    ):
+        if not isinstance(images, list):
+            images = [ images ]
+
+        transforms = T.Compose(
+            [
+                T.Resize((224, 224), 3),
+                T.ToTensor(),
+                T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ]
+        )
+
+        image_batch = [ transforms(image) for image in images ]
+        image_batch = torch.stack(image_batch)
+        image_batch = image_batch.to(self.device)
+        logits = self.forward(image_batch)
+        thing_classes = torch.argmax(logits, dim=1)
+
+        if wordtree_target:
+            task = lambda x: self.wordtree.search_ancestor(int(x), wordtree_target)
+            with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+                thing_classes = list(executor.map(task, thing_classes))
+        elif to_name:
+            thing_classes = [ self.wordtree.to_name(thing_class) for thing_class in thing_classes ]
+        return thing_classes
