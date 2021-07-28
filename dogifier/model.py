@@ -1,6 +1,6 @@
 import os
 import torch
-from torch._C import device
+from torch import Tensor
 import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -123,7 +123,7 @@ class Dogifier(pl.LightningModule):
         images: Union[Image.Image, List[Image.Image]],
         wordtree_target: Optional[str] = None,
         to_name: Optional[bool] = False
-    ):
+    ) -> List[Union[Tensor, bool, str]]:
         if not isinstance(images, list):
             images = [ images ]
 
