@@ -43,8 +43,8 @@ def main(
         import shutil
         os.makedirs(output_dir, exist_ok=True)
 
-        target_dir = os.path.join(output_dir,  "target")
-        non_target_dir = os.path.join(output_dir, "non-target")
+        target_dir = os.path.join(output_dir, backbone_name,  "target")
+        non_target_dir = os.path.join(output_dir, backbone_name, "non-target")
         os.makedirs(target_dir, exist_ok=True)
         os.makedirs(non_target_dir, exist_ok=True)
 
