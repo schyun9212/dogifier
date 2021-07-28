@@ -43,10 +43,10 @@ class WordTree():
         
         return name == ancestor_name
 
-    def to_name(self, index: int):
+    def to_name(self, index: int) -> str:
         _, name = self.imagenet_class_map[index]
         return name
 
-    def to_label(self, index: int):
+    def to_label(self, index: int) -> str:
         label, _ = self.imagenet_class_map[index]
         return label

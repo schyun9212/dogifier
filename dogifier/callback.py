@@ -1,10 +1,17 @@
+from typing import Optional
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from typing import List
 
 from .utils.common import parse_ckpt_template
 
 
-def build_checkpoint_callback(model_dir, targets=[], precision=".2f", save_top_k=2):
+def build_checkpoint_callback(
+    model_dir: str,
+    targets: Optional[List[str]] = [],
+    precision: Optional[str] = ".2f",
+    save_top_k: Optional[int] = 2
+) -> List[ModelCheckpoint]:
     callbacks = []
 
     for target in targets:
@@ -22,7 +29,12 @@ def build_checkpoint_callback(model_dir, targets=[], precision=".2f", save_top_k
     return callbacks
 
 
-def build_early_stop_callback(monitor, min_delta=0.0, patience=10, mode="max"):
+def build_early_stop_callback(
+    monitor: str,
+    min_delta: Optional[float] = 0.0,
+    patience: Optional[int] = 10,
+    mode: Optional[str] = "max"
+) -> List[EarlyStopping]:
     callback = EarlyStopping(
         monitor=monitor,
         min_delta=min_delta,
