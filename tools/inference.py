@@ -1,29 +1,16 @@
 import os
-from PIL import Image
 import argparse
-import torch
-import torchvision.transforms as T
 from typing import Optional
-
-from dogifier.utils.common import get_imagenet_class_map
+from PIL import Image
+from dogifier.utils.resource import get_imagenet_class_map
 from dogifier.model import Dogifier
-
-
-def build_transform():
-    transforms = T.Compose(
-        [
-            T.Resize((224, 224), 3),
-            T.ToTensor(),
-            T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ]
-    )
-    return transforms
 
 
 def main(
     image_dir: str, *,
     backbone_name: Optional[str] = None,
-    weight_file: Optional[str] = None
+    weight_file: Optional[str] = None,
+    batch_size: Optional[int] = 1
 ) -> None:
     assert backbone_name or weight_file, "backbone name or weight file should be specified"
 
@@ -39,16 +26,14 @@ def main(
     else:
         image_list = [ image_dir ]
 
-    transforms = build_transform()
     class_map = get_imagenet_class_map()
 
-    for image_path in image_list:
-        image = Image.open(image_path)
-        image = transforms(image)
-        image = image.unsqueeze(0)
-        result = model(image)
-        result = torch.argmax(result)
-        print(class_map[int(result)])
+    for i in range(0, len(image_list), batch_size):
+        image_files = image_list[i:i+batch_size]
+        image_batch = [ Image.open(image_file) for image_file in image_files ]
+        thing_classes = model.classify(image_batch)
+        names = [ class_map[int(thing_class)][1] for thing_class in thing_classes]
+        print(names)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Optional
 from pytz import timezone
 import subprocess
-import json
 import torch.nn as nn
 
 
@@ -40,10 +39,3 @@ def get_git_revision_short_hash(dst_dir: Optional[str] = None):
     git_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip().decode()
     os.chdir(working_dir)
     return git_hash
-
-
-def build_imagenet_class_map():
-    with open("data/imagenet_class_index.json", 'r') as f:
-        imagenet_class_idx = json.load(f)
-        imagenet_idx_to_class = [ item[1] for item in imagenet_class_idx.values() ]
-    return imagenet_idx_to_class

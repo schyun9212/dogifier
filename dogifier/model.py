@@ -1,11 +1,16 @@
-from typing import Optional
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
 import timm
+import torchvision.transforms as T
+from PIL import Image
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, Union, List
 
 from .metric import accuracy
+from .utils.wordtree import WordTree
 
 
 TIMM_MODEL_CATALOG = dict.fromkeys(timm.list_models(pretrained=True), None)
@@ -38,6 +43,10 @@ class Dogifier(pl.LightningModule):
 
     ):
         super(Dogifier, self).__init__()
+        self.wordtree = WordTree()
+        self.lr = lr
+
+        # Setup network
         self.backbone = build_backbone(backbone_name)
 
         if isinstance(self.backbone.head, nn.Identity):
@@ -51,8 +60,7 @@ class Dogifier(pl.LightningModule):
             self.head.bias.data.zero_()
         else:
             self.head = nn.Identity()
-        
-        self.lr = lr
+
         if freeze:
             self._freeze()
     
@@ -108,3 +116,30 @@ class Dogifier(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
+
+    def classify(
+        self,
+        images: Union[Image.Image, List[Image.Image]],
+        wordtree_target: Optional[str] = None
+    ):
+        if not isinstance(images, list):
+            images = [ images ]
+
+        transforms = T.Compose(
+            [
+                T.Resize((224, 224), 3),
+                T.ToTensor(),
+                T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ]
+        )
+
+        image_batch = [ transforms(image) for image in images ]
+        image_batch = torch.stack(image_batch)
+        logits = self.forward(image_batch)
+        classes = torch.argmax(logits, dim=1)
+
+        if wordtree_target:
+            task = lambda x: self.wordtree.search_ancestor(x, wordtree_target)
+            with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+                classes = list(executor.map(task, classes), total=len(classes))
+        return classes

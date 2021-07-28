@@ -1,20 +1,27 @@
+from .resource import (
+    get_wordtree,
+    get_wordtree_names,
+    get_imagenet_class_map
+)
+
+
 class WordTree():
-    def __init__(self, tree_file: str, labels_file: str, names_file: str) -> None:
-        self.tree = []
+    def __init__(self) -> None:
+        self.tree = get_wordtree()
+        self.imagenet_class_map = get_imagenet_class_map()
         self.metadata = {}
 
-        with open(names_file, 'r') as f:
-            names = f.read().strip().split("\n")
-        
-        with open(tree_file, 'r') as f:
-            nodes = f.read().strip().split("\n")
+        names = get_wordtree_names()
 
-        for i, (node, name) in enumerate(zip(nodes, names)):
-            label, to = node.split(" ")
-            self.tree.append((label, int(to)))
+        for i, (node, name) in enumerate(zip(self.tree, names)):
+            label, _ = node
             self.metadata[label] = (i, name)
 
-    def is_descendant(self, descendant_label: str, ancestor_name: str):
+    def search_ancestor(
+        self,
+        descendant_label: str,
+        ancestor_name: str
+    ) -> bool:
         index, name = self.metadata[descendant_label]
         label, to = self.tree[index]
 
