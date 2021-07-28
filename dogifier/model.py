@@ -1,5 +1,6 @@
 import os
 import torch
+from torch._C import device
 import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -120,7 +121,8 @@ class Dogifier(pl.LightningModule):
     def classify(
         self,
         images: Union[Image.Image, List[Image.Image]],
-        wordtree_target: Optional[str] = None
+        wordtree_target: Optional[str] = None,
+        to_name: Optional[bool] = False
     ):
         if not isinstance(images, list):
             images = [ images ]
@@ -135,11 +137,14 @@ class Dogifier(pl.LightningModule):
 
         image_batch = [ transforms(image) for image in images ]
         image_batch = torch.stack(image_batch)
+        image_batch = image_batch.to(self.device)
         logits = self.forward(image_batch)
-        classes = torch.argmax(logits, dim=1)
+        thing_classes = torch.argmax(logits, dim=1)
 
         if wordtree_target:
-            task = lambda x: self.wordtree.search_ancestor(x, wordtree_target)
+            task = lambda x: self.wordtree.search_ancestor(int(x), wordtree_target)
             with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-                classes = list(executor.map(task, classes), total=len(classes))
-        return classes
+                thing_classes = list(executor.map(task, thing_classes))
+        elif to_name:
+            thing_classes = [ self.wordtree.to_name(thing_class) for thing_class in thing_classes ]
+        return thing_classes

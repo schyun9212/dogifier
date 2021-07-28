@@ -1,3 +1,5 @@
+from typing import Union
+
 from .resource import (
     get_wordtree,
     get_wordtree_names,
@@ -19,10 +21,13 @@ class WordTree():
 
     def search_ancestor(
         self,
-        descendant_label: str,
+        descendant: Union[str, int],
         ancestor_name: str
     ) -> bool:
-        index, name = self.metadata[descendant_label]
+        if isinstance(descendant, int):
+            descendant = self.to_label(descendant)
+
+        index, name = self.metadata[descendant]
         label, to = self.tree[index]
 
         safe_cnt = 0
@@ -37,3 +42,11 @@ class WordTree():
             safe_cnt += 1
         
         return name == ancestor_name
+
+    def to_name(self, index: int):
+        _, name = self.imagenet_class_map[index]
+        return name
+
+    def to_label(self, index: int):
+        label, _ = self.imagenet_class_map[index]
+        return label
