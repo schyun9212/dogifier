@@ -2,7 +2,6 @@ import os
 import argparse
 from typing import Optional
 from PIL import Image
-from dogifier.utils.resource import get_imagenet_class_map
 from dogifier.model import Dogifier
 
 
