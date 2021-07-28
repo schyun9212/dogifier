@@ -123,7 +123,7 @@ class Dogifier(pl.LightningModule):
         images: Union[Image.Image, List[Image.Image]],
         wordtree_target: Optional[str] = None,
         to_name: Optional[bool] = False
-    ) -> List[Union[Tensor, bool, str]]:
+    ) -> Union[Tensor, List[Union[bool, str]]]:
         if not isinstance(images, list):
             images = [ images ]
 

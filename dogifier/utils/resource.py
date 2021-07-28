@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List, Set
+from typing import List, Tuple
 
 
 resource_dir = os.path.join(os.path.dirname(__file__), "../resource")
@@ -12,14 +12,14 @@ WORDTREE_NAMES_FILE = os.path.join(resource_dir, "9k.names")
 WORDTREE_LABELS_FILE = os.path.join(resource_dir, "9k.labels")
 
 
-def get_imagenet_class_map() -> List[Set[str, str]]:
+def get_imagenet_class_map() -> List[Tuple[str, str]]:
     with open(IMAGENET_CLASS_INDEX_FILE, 'r') as f:
         imagenet_class_idx = json.load(f)
         imagenet_idx_to_class = [ item for item in imagenet_class_idx.values() ]
     return imagenet_idx_to_class
 
 
-def get_wordtree() -> List[Set[str, int]]:
+def get_wordtree() -> List[Tuple[str, int]]:
     with open(WORDTREE_TREE_FILE, 'r') as f:
         nodes = f.read().strip().split("\n")
 
