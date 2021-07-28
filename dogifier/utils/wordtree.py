@@ -1,5 +1,3 @@
-
-
 class WordTree():
     def __init__(self, tree_file: str, labels_file: str, names_file: str) -> None:
         self.tree = []

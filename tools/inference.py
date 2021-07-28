@@ -3,17 +3,10 @@ from PIL import Image
 import argparse
 import torch
 import torchvision.transforms as T
-import json
 from typing import Optional
 
+from dogifier.utils.common import get_imagenet_class_map
 from dogifier.model import Dogifier
-
-
-def build_imagenet_class_map():
-    with open("data/imagenet_class_index.json", 'r') as f:
-        imagenet_class_idx = json.load(f)
-        imagenet_idx_to_class = [ item[1] for item in imagenet_class_idx.values() ]
-    return imagenet_idx_to_class
 
 
 def build_transform():
@@ -47,7 +40,7 @@ def main(
         image_list = [ image_dir ]
 
     transforms = build_transform()
-    class_map = build_imagenet_class_map()
+    class_map = get_imagenet_class_map()
 
     for image_path in image_list:
         image = Image.open(image_path)

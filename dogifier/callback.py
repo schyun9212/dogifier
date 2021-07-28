@@ -1,6 +1,7 @@
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
-from .utils import parse_ckpt_template
+
+from .utils.common import parse_ckpt_template
 
 
 def build_checkpoint_callback(model_dir, targets=[], precision=".2f", save_top_k=2):

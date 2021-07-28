@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 import timm
 
-import dogifier.utils as utils
+from .metric import accuracy
 
 
 TIMM_MODEL_CATALOG = dict.fromkeys(timm.list_models(pretrained=True), None)
@@ -78,7 +78,7 @@ class Dogifier(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         _, y = batch
         loss, logits = self.shared_step(batch)
-        acc1, acc5 = utils.accuracy(logits, y, (1, 5))
+        acc1, acc5 = accuracy(logits, y, (1, 5))
 
         self.log("val_loss", loss)
         self.log("val_top1_acc", acc1, prog_bar=True)

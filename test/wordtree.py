@@ -1,6 +1,6 @@
 import os
 
-from dogifier.wordtree import WordTree
+from dogifier.utils.wordtree import WordTree
 
 DATA_DIR = "/home/appuser/dogifier/data"
 TREE_FILE = os.path.join(DATA_DIR, "9k.tree")
