@@ -50,7 +50,9 @@ class Dogifier(pl.LightningModule):
         # Setup network
         self.backbone = build_backbone(backbone_name)
 
-        if isinstance(self.backbone.head, nn.Identity):
+        if hasattr(self.backbone, "num_classes"):
+            backbone_out_features = num_classes
+        elif isinstance(self.backbone.head, nn.Identity):
             backbone_out_features = self.backbone.num_features
         else:
             backbone_out_features = self.backbone.head.out_features
